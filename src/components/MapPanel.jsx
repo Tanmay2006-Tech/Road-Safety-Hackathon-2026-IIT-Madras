@@ -393,7 +393,7 @@ export default function MapPanel({
                       color: routeColor(segment.color),
                       weight: 6,
                       opacity: 0.92,
-                      className: 'draw-route',
+                      className: `draw-route ${activeRoute === 'safer' ? 'route-dim' : 'current-route-line'}`,
                     }}
                   >
                     <Tooltip direction="top" sticky>
@@ -408,8 +408,8 @@ export default function MapPanel({
                       color: '#60a5fa',
                       weight: 6,
                       dashArray: '10 8',
-                      opacity: 0.88,
-                      className: 'draw-route',
+                      opacity: activeRoute === 'safer' ? 0.98 : 0.82,
+                      className: `draw-route ${activeRoute === 'safer' ? 'safer-route-line' : 'route-dim'}`,
                     }}
                   />
                 ))}
@@ -504,13 +504,13 @@ export default function MapPanel({
           </div>
         </div>
 
-        <aside className="absolute right-0 top-0 z-[900] hidden h-full w-full max-w-[340px] border-l border-slate-800 bg-black/88 p-3 backdrop-blur lg:block">
+        <aside className="absolute right-0 top-0 z-[900] hidden h-full w-full max-w-[348px] border-l border-slate-800 bg-black/88 p-4 backdrop-blur lg:block">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <p>Nearby Services - {serviceFocusLabel} ({LIVE_NEARBY_RADIUS_KM} KM)</p>
             <p className="text-violet-300">{allCount} found</p>
           </div>
 
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             <button className="rounded-md bg-violet-600 px-2 py-1 text-[11px] font-semibold text-white">All {allCount}</button>
             {Object.keys(filterLabels).map((key) => (
               <button
@@ -527,9 +527,9 @@ export default function MapPanel({
             ))}
           </div>
 
-          <div className="mt-3 max-h-[210px] space-y-2 overflow-auto pr-1">
+          <div className="mt-3 max-h-[230px] space-y-2.5 overflow-auto pr-1">
             {listedServices.map((spot) => (
-              <div key={`list-${spot.id}-${spot.type}`} className="rounded-lg border border-slate-800 bg-[#060b14] p-2 transition hover:border-slate-600">
+              <div key={`list-${spot.id}-${spot.type}`} className="rounded-lg border border-slate-800 bg-[#060b14] p-2.5 transition hover:border-cyan-300/40 hover:bg-[#081427]">
                 <div className="flex items-center gap-2">
                   <div
                     className="flex h-7 w-7 items-center justify-center rounded-full border text-[10px] font-bold"
@@ -551,7 +551,7 @@ export default function MapPanel({
             ))}
           </div>
 
-          <div className="mt-3 grid grid-cols-3 gap-2">
+          <div className="mt-4 grid grid-cols-3 gap-2.5">
             <div className="rounded-lg border border-slate-800 bg-[#060b14] p-2 text-center">
               <p className="text-lg font-bold text-rose-300">{highRiskSegments}</p>
               <p className="text-[10px] text-slate-500">HIGH ZONES</p>

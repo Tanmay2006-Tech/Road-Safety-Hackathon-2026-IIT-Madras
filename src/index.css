@@ -225,6 +225,20 @@ a:hover {
   animation: drawRoute 1.2s ease-out;
 }
 
+.route-dim {
+  opacity: 0.4;
+  transition: opacity 380ms ease;
+}
+
+.current-route-line {
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.22));
+}
+
+.safer-route-line {
+  filter: drop-shadow(0 0 12px rgba(74, 222, 128, 0.7));
+  animation: saferPulse 1.4s ease-in-out infinite;
+}
+
 .pulse-red {
   animation: pulseRed 1.8s infinite;
 }
@@ -278,6 +292,18 @@ a:hover {
   display: grid;
   place-items: center;
   box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.14);
+}
+
+@keyframes saferPulse {
+  0% {
+    filter: drop-shadow(0 0 6px rgba(74, 222, 128, 0.45));
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(74, 222, 128, 0.8));
+  }
+  100% {
+    filter: drop-shadow(0 0 6px rgba(74, 222, 128, 0.45));
+  }
 }
 
 .current-location-dot {

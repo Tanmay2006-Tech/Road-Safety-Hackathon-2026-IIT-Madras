@@ -676,6 +676,9 @@ export default function HomePage() {
   const showMapOnScreen = activeSection === 'overview' || activeSection === 'map'
   const demoTotalSeconds = DEMO_STEPS.reduce((sum, step) => sum + step.seconds, 0)
   const demoActiveStep = DEMO_STEPS[demoState.index]
+  const areaRiskLabel = riskBundle?.currentEval?.risk || 'Medium'
+  const areaRiskPercent = riskBundle?.currentEval?.riskPercent ?? 41
+  const safetyScore = Math.max(0, Math.min(100, riskBundle?.currentEval?.safetyScore ?? 72))
   const demoElapsed = useMemo(() => {
     const elapsedBeforeCurrent = DEMO_STEPS.slice(0, demoState.index).reduce((sum, step) => sum + step.seconds, 0)
     const currentStepTotal = DEMO_STEPS[demoState.index]?.seconds || 0
@@ -859,6 +862,43 @@ export default function HomePage() {
 
           <section className="space-y-4">
 
+            <div className="rp-card rp-float-in flex flex-wrap items-center justify-between gap-2 rounded-2xl border-cyan-300/20 p-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-200">Quick actions</p>
+                <p className="text-xs text-slate-300">Run a judge-friendly flow in one tap.</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {demoState.running ? (
+                  <button
+                    type="button"
+                    onClick={stopDemo}
+                    className="rounded-xl border border-amber-300/55 bg-amber-300/15 px-3 py-1.5 text-xs font-semibold text-amber-100"
+                  >
+                    Stop demo mode
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={startDemo}
+                    className="rounded-xl border border-cyan-300/55 bg-cyan-300/15 px-3 py-1.5 text-xs font-semibold text-cyan-100"
+                  >
+                    Demo mode
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={togglePresentationMode}
+                  className={`rounded-xl border px-3 py-1.5 text-xs font-semibold ${
+                    presentationMode
+                      ? 'border-amber-300/55 bg-amber-300/15 text-amber-100'
+                      : 'border-slate-600 bg-[#081225]/60 text-slate-200'
+                  }`}
+                >
+                  {presentationMode ? 'Stop presentation' : 'Presentation mode'}
+                </button>
+              </div>
+            </div>
+
             {demoState.running && demoActiveStep && (
               <div className="rp-card sticky top-[88px] z-[1000] rounded-2xl border border-cyan-300/35 bg-[#061228]/95 p-3 text-xs text-cyan-100 shadow-lg shadow-cyan-950/25">
                 <div className="flex items-center justify-between gap-3">
@@ -948,12 +988,27 @@ export default function HomePage() {
 
             {activeSection === 'overview' && (
             <section id="home-overview" className="space-y-4">
+              <div className="rp-card rp-float-in rounded-2xl border-cyan-300/30 bg-gradient-to-r from-[#0a1b35] via-[#0c223f] to-[#0b1e39] p-4 sm:p-5">
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-100">Live safety snapshot</p>
+                    <p className="mt-1 text-xl font-semibold text-white sm:text-2xl">Current area risk: {areaRiskLabel}</p>
+                    <p className="mt-1 text-xs text-cyan-100/90">{areaRiskPercent}% current risk based on latest context.</p>
+                  </div>
+                  <div className="rounded-xl border border-emerald-300/35 bg-emerald-400/10 px-4 py-3 text-right">
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-emerald-200">Safety Score</p>
+                    <p className="text-3xl font-bold text-white">{safetyScore} / 100</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="rp-card rp-hero-card rp-tilt-card rp-float-in rounded-2xl p-5 sm:p-6">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-cyan-200">Road safety for everyone</p>
                 <h1 className="mt-2 font-display text-3xl text-white sm:text-4xl">Know the risk before the road.</h1>
                 <p className="mt-2 max-w-2xl text-sm text-slate-300">
                   A clean route-safety demo that shows risk, nearby help, and emergency action in one screen.
                 </p>
+                <p className="mt-2 text-sm font-medium text-emerald-200">Preventing accidents before they happen.</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     onClick={() => openSos('home-quick')}
@@ -1001,8 +1056,8 @@ export default function HomePage() {
               <div className="rp-metric-grid grid gap-4 md:grid-cols-3">
                 <div className="rp-card rp-tilt-card rounded-2xl p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Current risk</p>
-                  <p className="mt-2 text-2xl font-semibold text-white">{riskBundle?.currentEval?.risk || 'Low'}</p>
-                  <p className="mt-1 text-sm text-slate-300">{riskBundle?.currentEval?.riskPercent || 0}% route risk.</p>
+                  <p className="mt-2 text-2xl font-semibold text-white">{areaRiskLabel}</p>
+                  <p className="mt-1 text-sm text-slate-300">{areaRiskPercent}% route risk.</p>
                 </div>
                 <div className="rp-card rp-tilt-card rounded-2xl p-4">
                   <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Nearby help</p>
@@ -1010,9 +1065,9 @@ export default function HomePage() {
                   <p className="mt-1 text-sm text-slate-300">Places within reach.</p>
                 </div>
                 <div className="rp-card rp-tilt-card rounded-2xl p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Crash monitor</p>
-                  <p className="mt-2 text-2xl font-semibold text-white">{crashDetectionEnabled ? 'ON' : 'OFF'}</p>
-                  <p className="mt-1 text-sm text-slate-300">Auto SOS trigger status.</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-cyan-200">Safety score</p>
+                  <p className="mt-2 text-2xl font-semibold text-white">{safetyScore} / 100</p>
+                  <p className="mt-1 text-sm text-slate-300">Single score for quick decisions.</p>
                 </div>
               </div>
             </section>
