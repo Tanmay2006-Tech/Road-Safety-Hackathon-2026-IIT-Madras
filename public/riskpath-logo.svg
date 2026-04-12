@@ -1,0 +1,12 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="riskpathGrad" x1="20" y1="14" x2="108" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#34D399"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="116" height="116" rx="28" fill="#050A12" stroke="#1F2937" stroke-width="4"/>
+  <path d="M64 18L99 33V61C99 83 85 101 64 110C43 101 29 83 29 61V33L64 18Z" fill="url(#riskpathGrad)" fill-opacity="0.22" stroke="url(#riskpathGrad)" stroke-width="3"/>
+  <path d="M43 82V45H60C67 45 71 49 71 56C71 63 67 67 60 67H52V82H43ZM52 59H58C61 59 62 58 62 56C62 53 60 53 58 53H52V59Z" fill="#ECFEFF"/>
+  <path d="M78 82V45H88C98 45 105 52 105 63C105 74 98 82 88 82H78ZM87 74H88C93 74 96 70 96 63C96 56 93 53 88 53H87V74Z" fill="#D1FAE5"/>
+</svg>

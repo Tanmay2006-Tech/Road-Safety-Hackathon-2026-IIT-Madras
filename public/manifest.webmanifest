@@ -1,0 +1,24 @@
+{
+  "name": "RiskPath - AI Road Safety",
+  "short_name": "RiskPath",
+  "description": "Predict road risk before travel with AI route scoring, safety alerts, and emergency support.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050a12",
+  "theme_color": "#050a12",
+  "icons": [
+    {
+      "src": "/riskpath-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

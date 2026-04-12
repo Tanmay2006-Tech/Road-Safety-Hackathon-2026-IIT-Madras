@@ -1,0 +1,24 @@
+export default function RiskBar({ riskPercent = 0, confidence = 0 }) {
+  const pointer = `${Math.min(100, Math.max(0, riskPercent))}%`
+
+  return (
+    <div className="rounded-2xl border border-slate-700 bg-slate-900/80 p-4 sm:p-5">
+      <div className="mb-2 flex items-center justify-between text-sm">
+        <p className="font-semibold text-slate-100">Risk Visualization</p>
+        <p className="text-slate-400">Confidence: {confidence}%</p>
+      </div>
+
+      <div className="relative mt-5 h-4 rounded-full bg-gradient-to-r from-emerald-400 via-amber-300 to-rose-500">
+        <span
+          className="absolute -top-2 h-8 w-[2px] -translate-x-1/2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.65)]"
+          style={{ left: pointer }}
+        />
+      </div>
+      <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
+        <span>Safe</span>
+        <span>{riskPercent}% risk</span>
+        <span>Danger</span>
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,13 @@
+<svg width="320" height="430" viewBox="0 0 320 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">You are here map pin</title>
+  <desc id="desc">Black map pin with white inner circle and the words You Are Here.</desc>
+
+  <ellipse cx="160" cy="412" rx="88" ry="14" fill="#000000" fill-opacity="0.12"/>
+
+  <path d="M160 18C95.4 18 43 70.4 43 135c0 31.7 11.7 61 31 83.5L160 356l86-137.5c19.3-22.5 31-51.8 31-83.5C277 70.4 224.6 18 160 18z" fill="#05070c"/>
+
+  <circle cx="160" cy="135" r="84" fill="#ffffff"/>
+
+  <text x="160" y="122" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#0b0d12">YOU ARE</text>
+  <text x="160" y="168" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="900" fill="#0b0d12">HERE</text>
+</svg>
