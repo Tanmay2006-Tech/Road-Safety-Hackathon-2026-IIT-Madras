@@ -127,6 +127,16 @@ function createCurrentLocationIcon() {
   })
 }
 
+function createDestinationIcon() {
+  return L.icon({
+    iconUrl: '/destination-pin.svg',
+    iconRetinaUrl: '/destination-pin.svg',
+    iconSize: [42, 58],
+    iconAnchor: [21, 54],
+    popupAnchor: [0, -48],
+  })
+}
+
 function squaredDistance(lat1, lng1, lat2, lng2) {
   const dx = lat1 - lat2
   const dy = lng1 - lng2
@@ -218,6 +228,20 @@ export default function MapPanel({
   }, [activeTheme])
   const liveFocus = center
 
+  const routeFocus = useMemo(() => {
+    if (!activeCoordinates?.length) return null
+    const [lng, lat] = activeCoordinates[0]
+    return { lat, lng }
+  }, [activeCoordinates])
+
+  const isRouteFarFromLive = useMemo(() => {
+    if (!routeFocus) return false
+    return approxDistanceKm(liveFocus.lat, liveFocus.lng, routeFocus.lat, routeFocus.lng) > 25
+  }, [liveFocus.lat, liveFocus.lng, routeFocus])
+
+  const serviceFocus = isRouteFarFromLive && routeFocus ? routeFocus : liveFocus
+  const serviceFocusLabel = isRouteFarFromLive ? 'Route Area' : 'Live Location'
+
   const filterLabels = {
     hospital: 'Hospital',
     police: 'Police',
@@ -235,16 +259,18 @@ export default function MapPanel({
       facilities
         .map((item) => ({
           ...item,
-          distanceKm: approxDistanceKm(liveFocus.lat, liveFocus.lng, item.lat, item.lng),
+          distanceKm: approxDistanceKm(serviceFocus.lat, serviceFocus.lng, item.lat, item.lng),
         }))
         .sort((a, b) => a.distanceKm - b.distanceKm),
-    [facilities, liveFocus.lat, liveFocus.lng],
+    [facilities, serviceFocus.lat, serviceFocus.lng],
   )
 
-  const nearbyFacilities = useMemo(
-    () => facilitiesWithDistance.filter((item) => item.distanceKm <= LIVE_NEARBY_RADIUS_KM),
-    [facilitiesWithDistance],
-  )
+  const nearbyFacilities = useMemo(() => {
+    const inRadius = facilitiesWithDistance.filter((item) => item.distanceKm <= LIVE_NEARBY_RADIUS_KM)
+    if (inRadius.length > 0) return inRadius
+    // Fallback: show closest fetched services when nothing is in the strict radius.
+    return facilitiesWithDistance.slice(0, 10)
+  }, [facilitiesWithDistance])
 
   const counts = nearbyFacilities.reduce((acc, item) => {
     acc[item.type] = (acc[item.type] || 0) + 1
@@ -265,6 +291,14 @@ export default function MapPanel({
   }, [])
 
   const currentLocationIcon = useMemo(() => createCurrentLocationIcon(), [])
+  const destinationIcon = useMemo(() => createDestinationIcon(), [])
+
+  const destinationPoint = useMemo(() => {
+    if (!activeCoordinates?.length) return null
+    const [lng, lat] = activeCoordinates[activeCoordinates.length - 1]
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+    return { lat, lng }
+  }, [activeCoordinates])
 
   const nearestHospital = useMemo(() => {
     if (!nearbyFacilities.length) return null
@@ -339,6 +373,15 @@ export default function MapPanel({
               <p className="text-xs">{center.lat.toFixed(5)}, {center.lng.toFixed(5)}</p>
             </Popup>
           </Marker>
+
+          {destinationPoint && (
+            <Marker position={[destinationPoint.lat, destinationPoint.lng]} icon={destinationIcon}>
+              <Popup>
+                <p className="font-semibold">Destination</p>
+                <p className="text-xs">{destination || 'Selected route endpoint'}</p>
+              </Popup>
+            </Marker>
+          )}
 
           {activeCoordinates &&
             (activeRoute === 'current'
@@ -463,7 +506,7 @@ export default function MapPanel({
 
         <aside className="absolute right-0 top-0 z-[900] hidden h-full w-full max-w-[340px] border-l border-slate-800 bg-black/88 p-3 backdrop-blur lg:block">
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <p>Nearby Services - Live Location ({LIVE_NEARBY_RADIUS_KM} KM)</p>
+            <p>Nearby Services - {serviceFocusLabel} ({LIVE_NEARBY_RADIUS_KM} KM)</p>
             <p className="text-violet-300">{allCount} found</p>
           </div>
 
@@ -523,8 +566,8 @@ export default function MapPanel({
             </div>
           </div>
 
-          <div className="mt-3 border-t border-violet-700/40 pt-3">
-            <p className="mb-2 text-xl font-semibold text-violet-300">Route check</p>
+          <div className="mt-3 border-t border-cyan-700/30 pt-3">
+            <p className="mb-2 text-xl font-semibold text-cyan-200">Check route</p>
             <div className="mb-2">
               <PlaceAutocompleteInput
                 value={start}
@@ -547,16 +590,16 @@ export default function MapPanel({
               <button
                 onClick={() => onAnalyze()}
                 disabled={loading || !start || !destination}
-                className="rounded-lg bg-violet-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-violet-600 disabled:cursor-not-allowed disabled:bg-slate-700"
+                className="rounded-lg bg-emerald-500 px-3 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
               >
-                {loading ? 'Analyzing...' : 'Analyze Route'}
+                {loading ? 'Checking...' : 'Show risk'}
               </button>
               <button
                 onClick={onClearInputs}
                 type="button"
                 className="rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:border-cyan-300/70 hover:text-cyan-200"
               >
-                Clear
+                Reset
               </button>
               <button
                 onClick={onUseCurrentLocation}
@@ -564,7 +607,7 @@ export default function MapPanel({
                 disabled={!hasCurrentLocation}
                 className="rounded-lg border border-slate-600 bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:border-cyan-300/70 hover:text-cyan-200 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Current
+                Use live
               </button>
             </div>
           </div>
@@ -579,9 +622,9 @@ export default function MapPanel({
             <button
               onClick={() => onAnalyze()}
               disabled={loading || !start || !destination}
-              className="rounded-lg bg-violet-700 px-2 py-1.5 text-xs font-semibold text-white disabled:bg-slate-700"
+              className="rounded-lg bg-emerald-500 px-2 py-1.5 text-xs font-semibold text-slate-950 disabled:bg-slate-700 disabled:text-slate-300"
             >
-              {loading ? 'Analyzing...' : 'Analyze'}
+              {loading ? 'Checking...' : 'Show risk'}
             </button>
             <button
               onClick={onOpenSos}

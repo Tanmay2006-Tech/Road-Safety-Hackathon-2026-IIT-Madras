@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchPlaceSuggestions } from '../utils/mapServices'
 
 export default function PlaceAutocompleteInput({
@@ -11,6 +11,17 @@ export default function PlaceAutocompleteInput({
   const [suggestions, setSuggestions] = useState([])
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
+  const committedSelectionRef = useRef('')
+
+  const normalize = (text) => (text || '').trim().toLowerCase()
+
+  function commitSelection(label) {
+    committedSelectionRef.current = normalize(label)
+    onChange(label)
+    setSuggestions([])
+    setOpen(false)
+    setActiveIndex(-1)
+  }
 
   const inputClassName = useMemo(
     () =>
@@ -25,10 +36,25 @@ export default function PlaceAutocompleteInput({
 
     const timer = setTimeout(async () => {
       const trimmed = value?.trim()
+      const normalized = normalize(trimmed)
+      const isCommittedSelection = normalized && normalized === committedSelectionRef.current
+
       if (!trimmed || trimmed.length < 2) {
         if (alive) {
           setSuggestions([])
           setOpen(false)
+          setActiveIndex(-1)
+        }
+        return
+      }
+
+      // If value was chosen from suggestions, keep the dropdown closed
+      // until user edits the input again.
+      if (isCommittedSelection) {
+        if (alive) {
+          setSuggestions([])
+          setOpen(false)
+          setActiveIndex(-1)
         }
         return
       }
@@ -63,8 +89,15 @@ export default function PlaceAutocompleteInput({
     <div className="relative">
       <input
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => {
+          const nextValue = event.target.value
+          if (normalize(nextValue) !== committedSelectionRef.current) {
+            committedSelectionRef.current = ''
+          }
+          onChange(nextValue)
+        }}
         onFocus={() => {
+          if (committedSelectionRef.current) return
           if (suggestions.length > 0) setOpen(true)
         }}
         onKeyDown={(event) => {
@@ -82,8 +115,7 @@ export default function PlaceAutocompleteInput({
 
           if (event.key === 'Enter' && activeIndex >= 0) {
             event.preventDefault()
-            onChange(suggestions[activeIndex].label)
-            setOpen(false)
+            commitSelection(suggestions[activeIndex].label)
           }
 
           if (event.key === 'Escape') {
@@ -106,8 +138,7 @@ export default function PlaceAutocompleteInput({
               type="button"
               onMouseDown={(event) => {
                 event.preventDefault()
-                onChange(item.label)
-                setOpen(false)
+                commitSelection(item.label)
               }}
               className={`block w-full rounded-lg px-2 py-2 text-left text-xs transition ${
                 index === activeIndex ? 'bg-slate-800 text-white' : 'text-slate-200 hover:bg-slate-800'

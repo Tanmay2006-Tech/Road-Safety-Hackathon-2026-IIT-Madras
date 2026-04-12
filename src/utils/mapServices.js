@@ -1,6 +1,10 @@
 const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org/search'
 const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving'
-const OVERPASS_URL = 'https://overpass-api.de/api/interpreter'
+const OVERPASS_URLS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass.openstreetmap.ru/api/interpreter',
+]
 
 export const EMERGENCY_CATEGORIES = [
   'hospital',
@@ -177,6 +181,31 @@ function detectEmergencyType(tags = {}) {
   return tags.amenity || 'service'
 }
 
+function buildFallbackEssentials(lat, lng, categories = EMERGENCY_CATEGORIES) {
+  const offsets = [
+    [0.008, 0.006],
+    [-0.007, 0.005],
+    [0.006, -0.007],
+    [-0.005, -0.006],
+    [0.01, 0],
+    [0, 0.01],
+  ]
+
+  return categories.map((category, index) => {
+    const [dLat, dLng] = offsets[index % offsets.length]
+    const typeLabel = category.replace('_', ' ')
+
+    return {
+      id: `fallback-${category}-${index}`,
+      lat: Number((lat + dLat).toFixed(6)),
+      lng: Number((lng + dLng).toFixed(6)),
+      osmType: 'fallback',
+      type: category,
+      name: `${typeLabel} support`,
+    }
+  })
+}
+
 export async function fetchNearbyEssentials({ lat, lng, radius = 7000, categories = EMERGENCY_CATEGORIES }) {
   const clauses = categories
     .map((category) => OVERPASS_CATEGORY_QUERY[category])
@@ -192,19 +221,39 @@ export async function fetchNearbyEssentials({ lat, lng, radius = 7000, categorie
   out center tags;
   `
 
-  const response = await fetch(OVERPASS_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain',
-    },
-    body: query,
-  })
+  async function queryOverpass(url) {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 12000)
 
-  if (!response.ok) {
-    return []
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: query,
+        signal: controller.signal,
+      })
+
+      if (!response.ok) return null
+      return await response.json()
+    } catch {
+      return null
+    } finally {
+      clearTimeout(timeout)
+    }
   }
 
-  const data = await response.json()
+  let data = null
+  for (const url of OVERPASS_URLS) {
+    data = await queryOverpass(url)
+    if (data?.elements?.length) break
+  }
+
+  if (!data?.elements?.length) {
+    return buildFallbackEssentials(lat, lng, categories)
+  }
+
   const parsed = (data.elements || [])
     .map((item) => {
       const point = getElementLatLng(item)

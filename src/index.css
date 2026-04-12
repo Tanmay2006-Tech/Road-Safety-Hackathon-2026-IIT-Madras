@@ -41,10 +41,7 @@ body {
   margin: 0;
   font-family: 'Outfit', sans-serif;
   color: var(--rp-text);
-  background:
-    radial-gradient(circle at 10% 8%, rgba(34, 211, 238, 0.12), transparent 36%),
-    radial-gradient(circle at 86% 0%, rgba(59, 130, 246, 0.11), transparent 34%),
-    linear-gradient(180deg, #0a1222 0%, #060a14 100%);
+  background: linear-gradient(180deg, #09111f 0%, #060a12 100%);
 }
 
 #root {
@@ -76,9 +73,7 @@ h4,
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.04), transparent 30%),
-    radial-gradient(circle at 78% 10%, rgba(34, 211, 238, 0.08), transparent 32%);
+  background: radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.03), transparent 30%);
 }
 
 .rp-main {
@@ -111,70 +106,21 @@ h4,
 .rp-card {
   border: 1px solid rgba(162, 197, 236, 0.18);
   background: var(--rp-glass);
-  box-shadow: var(--rp-shadow);
+  box-shadow: 0 12px 26px rgba(2, 8, 23, 0.32);
   backdrop-filter: blur(10px);
 }
 
 .rp-card:hover {
   border-color: rgba(162, 197, 236, 0.32);
-  box-shadow: 0 24px 56px rgba(2, 8, 23, 0.6);
+  box-shadow: 0 14px 28px rgba(2, 8, 23, 0.38);
 }
 
 .rp-tilt-card {
-  transform-style: preserve-3d;
-  transition: transform 280ms ease, box-shadow 280ms ease, border-color 280ms ease;
-}
-
-.rp-tilt-card:hover {
-  transform: perspective(1000px) rotateX(2.2deg) rotateY(-2deg) translateY(-2px);
+  transition: box-shadow 220ms ease, border-color 220ms ease;
 }
 
 .rp-float-in {
-  animation: rpFloatIn 900ms ease-out both;
-}
-
-.rp-ambient-orb {
-  position: fixed;
-  pointer-events: none;
-  border-radius: 999px;
-  filter: blur(2px);
-  z-index: -1;
-  opacity: 0.42;
-}
-
-.rp-ambient-orb.one {
-  width: 220px;
-  height: 220px;
-  left: -60px;
-  top: 120px;
-  background: radial-gradient(circle, rgba(34, 211, 238, 0.36), transparent 70%);
-  animation: rpOrbit 16s ease-in-out infinite;
-}
-
-.rp-ambient-orb.two {
-  width: 280px;
-  height: 280px;
-  right: -90px;
-  top: 240px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.28), transparent 70%);
-  animation: rpOrbit 19s ease-in-out infinite reverse;
-}
-
-.rp-hero-card {
-  position: relative;
-  overflow: hidden;
-}
-
-.rp-hero-card::after {
-  content: '';
-  position: absolute;
-  width: 220px;
-  height: 220px;
-  right: -70px;
-  top: -90px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(34, 211, 238, 0.2), transparent 66%);
-  pointer-events: none;
+  animation: rpFloatIn 420ms ease-out both;
 }
 
 .rp-control-bar {
@@ -188,7 +134,7 @@ h4,
 }
 
 .rp-metric-grid .rp-card {
-  background: linear-gradient(155deg, rgba(18, 35, 63, 0.74), rgba(11, 22, 42, 0.7));
+  background: rgba(11, 22, 42, 0.78);
 }
 
 .rp-sidebar-nav button {
@@ -222,18 +168,6 @@ h4,
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes rpOrbit {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(0, -18px, 0) scale(1.04);
-  }
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 

@@ -1,91 +1,104 @@
 # RiskPath
 
-RiskPath is a SaaS-style AI road safety platform for India that predicts accident risk before travel, highlights dangerous route segments, suggests safer alternatives, and provides instant emergency support.
+<p align="center">
+  <img src="public/riskpath-logo.svg" alt="RiskPath logo" width="120" />
+</p>
 
-## Problem Statement (RoadSoS + AI Context)
+RiskPath is a prevention-first road safety platform that predicts route risk before travel, highlights dangerous segments on a live map, suggests safer alternatives, and exposes emergency support when it matters.
 
-Road accidents in India often become fatal not because of the accident itself, but due to:
+## Hackathon Pitch
 
-- lack of real-time awareness of dangerous routes
-- no system to predict accident risk before travel
-- delays in accessing nearby emergency services
-- poor visibility conditions (rain, fog, night driving)
-- fragmented access to hospitals, police, and rescue services
+Road safety tools are usually reactive. RiskPath is designed to be the opposite: it helps a user understand risk before starting the trip, shows why that route is risky, and gives immediate actions for emergency response.
 
-Most existing systems are reactive. They respond only after accidents.
+In one flow, the app does three things:
 
-### Core Problem
+1. checks the route risk
+2. explains the reason behind the score
+3. helps the user act fast with map-based support and SOS options
 
-There is no intelligent, real-time system that can predict road risk, guide users to safer routes, and provide instant emergency support in a unified platform.
+## What It Solves
 
-## Solution Overview
+India's road-safety problem is not only about accidents. It is also about:
 
-RiskPath is an AI-powered road safety system that predicts accident risk, visualizes dangerous route segments, suggests safer alternatives, and provides instant SOS support using real-time data like weather and location.
+- delayed access to nearby hospitals, police, and support services
+- poor visibility conditions like rain, fog, and night travel
+- lack of route-level risk awareness before travel
+- fragmented access to emergency tools during a stressful event
+
+RiskPath unifies those needs in one interface.
 
 ## Core Features
 
-- Route Risk Analyzer with segment-level scoring
-- Color-coded route segments (Green, Yellow, Red)
-- Overall risk label, risk percentage, confidence, and high-risk segment count
-- Safer route comparison and route switch
-- Real-time weather context (OpenWeather + fallback)
-- Predictive high-risk alert (visual + voice)
-- Smart Departure Advisor (leave now / delay / safer-route recommendation)
-- Crash Detection Mode with auto-SOS countdown
-- Trusted Contacts panel with WhatsApp/SMS emergency sharing
-- 2-minute live trip risk recheck mode
-- SOS emergency panel with India helplines (108, 100, 101)
-- Hotspot layer for accident-prone zones
-- Expanded emergency network on map:
-  - hospitals
-  - police stations
-  - fire stations
-  - clinics
-  - pharmacies
-  - ambulance stations
-- Category filters with live counts and marker clustering
-- Emergency service logos/icons directly on map markers
-- Emergency quick-action panel (instant call + nearest hospital/police navigation)
-- Mobile quick-control strip on map for analyze/SOS
-- Community hazard reporting (quick report + map click placement)
-- Hazard markers shown directly on map
-- AI model lab scenarios and demo toggles
-- Downloadable route safety reports (.json and .txt)
-- One-click judge demo mode
-- Admin analytics snapshot (trips, SOS events, hazards, emergency points)
-- Predictive Risk Timeline (15/30/45 min forward risk projection)
-- Power-user Command Center with keyboard shortcuts
-- Judge Impact Snapshot with quantified safety-vs-ETA tradeoff
-- Competition Edge panel with one-click 30-second pitch copy
-- RoadSoS Compliance Board with live criterion checks
-- PWA installability + offline cache support
-- Runtime safety layer with React Error Boundary fallback
-- Connection-aware status banner (offline/online/update state)
-- Lazy-loaded map module for faster first paint
-- Evidence Pack export in Markdown for presentations and submission docs
-- Contacts CSV export for fetched-service proof in evaluation
+- Route risk analysis with current vs safer route comparison
+- Clear route reasons with factor-level explanations
+- Live map with route, hotspots, hazards, and emergency services
+- Destination pin and current-location marker on the map
+- Nearby services panel with fallback when external APIs fail
+- Crash detection and SOS support
+- Trusted contacts and shareable emergency details
+- Offline emergency kit with route/profile restore
+- Downloadable route safety reports
+- PWA support, offline cache, and error-boundary recovery
+- Presentation/demo friendly walkthrough flow
+
+## Why This Project Is Strong For Judging
+
+- It solves a real and easy-to-understand problem.
+- It has a complete user journey from route entry to emergency action.
+- It looks and behaves like a deployable product, not just a prototype.
+- It has resilience: API fallback, offline support, and crash recovery.
+- It is demoable in under a minute and still explainable in detail.
 
 ## Tech Stack
 
-- React + Vite
+- React 19 + Vite 8
 - Tailwind CSS
-- Leaflet + React Leaflet
-- OpenStreetMap / Nominatim / OSRM
-- Overpass API
+- Leaflet / React Leaflet / Leaflet cluster
+- OpenStreetMap, Nominatim, OSRM, Overpass
 - OpenWeather API
-- JavaScript AI risk engine (frontend only)
+- Frontend-only JavaScript risk engine
 
-## Project Structure
+## How It Works
 
-```
-src/
-  components/
-  pages/
-  utils/
-  hooks/
-docs/
-README.md
-```
+1. Enter start and destination.
+2. Click Show risk.
+3. Review the score, route reasons, and nearby services.
+4. Switch to the map to inspect routes and service markers.
+5. Open insights for a cleaner explanation and exports.
+6. Use SOS, contacts, or the offline emergency kit if needed.
+
+## Demo Flow For Judges
+
+1. Open the app.
+2. Enter a sample route.
+3. Show the result card in the Route section.
+4. Open the map and point out route segments and destination pin.
+5. Explain how nearby services and emergency links work.
+6. Trigger SOS to show emergency readiness.
+7. Mention offline fallback and error recovery.
+
+## Reliability and Fallback Behavior
+
+- Geocoding/search uses country-scoped lookup with global fallback.
+- Routing uses OSRM with user-visible error handling if unavailable.
+- Nearby services query multiple Overpass endpoints.
+- If Overpass is unavailable, the app generates fallback emergency points for demo continuity.
+- Offline mode preserves cached UI and restores saved route/profile snapshots.
+- Error Boundary prevents a hard crash and offers recovery.
+
+## Known Limitations
+
+- Public APIs can rate-limit or return partial data.
+- Live traffic is simulated in this frontend-only build.
+- Fallback nearby points are continuity placeholders, not official verified facilities.
+- Real dispatch integration is outside the scope of this prototype.
+
+## Assumptions
+
+- Free public APIs may occasionally be slow or unavailable.
+- Route alternatives may not exist for every route.
+- Traffic is simulated for the demo experience.
+- Hotspot data is generated for visual risk modeling.
 
 ## Setup
 
@@ -95,160 +108,62 @@ README.md
 npm install
 ```
 
-2. Optional weather API setup:
-
-- Copy `.env.example` to `.env`
-- Add key:
+2. Optional weather setup:
 
 ```bash
 VITE_OPENWEATHER_API_KEY=your_key
 ```
 
-3. Run app:
+3. Run locally:
 
 ```bash
 npm run dev
 ```
 
-4. Build app:
+4. Build for submission:
 
 ```bash
 npm run build
 ```
 
-5. Optional quality checks:
+5. Quality checks:
 
 ```bash
 npm run lint
 npm run check
 ```
 
-## Compliance Matrix
+## Deployment
 
-- Stage-1 and RoadSoS requirement mapping:
-  - `docs/STAGE1_COMPLIANCE_MATRIX.md`
+Static frontend app.
+
+- Vercel: build command `npm run build`, output `dist`
+- Netlify: build command `npm run build`, publish `dist`
 
 ## Keyboard Shortcuts
 
 - `Shift + Enter` -> analyze route immediately
 - `Alt + S` -> open SOS overlay
 - `Alt + L` -> toggle live monitor
-- `Alt + D` -> run one-click judge demo
+- `Alt + D` -> run demo
 
-## Production-Grade Upgrades (2026)
+## Project Structure
 
-- PWA support with `manifest.webmanifest` and service worker caching
-- Graceful UI crash handling via Error Boundary with recovery action
-- Predictive timeline engine for near-future risk outlook
-- Accessibility upgrades (`:focus-visible`, reduced-motion support)
-- Improved metadata for better link previews and presentation
-
-## Why This Project Stands Out
-
-- Prevention-first architecture: predicts and visualizes risk before incidents
-- India-grounded operational utility: emergency routing + contact workflows
-- Demo-ready and recruiter-ready product quality: modern UX + measurable signals
-- Designed for real adoption constraints (rate limits, network loss, offline fallback)
-
-## Risk Logic (AI Engine)
-
-Inputs:
-- weather (`Clear`, `Rain`, `Fog`)
-- time context (`day`, `night`)
-- traffic simulation (`moderate`, `heavy`)
-- hotspot proximity
-- deterministic segment variance
-
-Outputs:
-- risk label (`Low`, `Medium`, `High`)
-- risk percentage
-- confidence score
-- high-risk segment count
-- factor-level reason list
-
-Sample output:
-
-```json
-{
-  "risk": "High",
-  "confidence": 78,
-  "reasons": [
-    { "factor": "Rain", "impact": "+25%" },
-    { "factor": "Night", "impact": "+20%" }
-  ]
-}
+```text
+src/
+  components/
+  pages/
+  utils/
+  hooks/
+public/
+README.md
 ```
 
-## India-Focused Usability
+## Sharing Notes
 
-- emergency numbers mapped to India services
-- route/place queries biased toward India
-- nearby hospitals and police discovery in practical radius
-- emergency service coverage fetched around route origin, destination, and mid-corridor
-- mobile-first UI for commuter context
-
-## Assumptions
-
-- free public APIs can rate-limit occasionally
-- OSRM alternatives may not exist for every route
-- traffic is simulated in demo mode
-- hotspot data is demo/dummy generated
-- weather falls back if API key is unavailable
-
-## Stage 1 Submission Requirements
-
-### 1) Code
-- complete and working project
-- clear structure and runnable setup
-
-### 2) Presentation (Strict 7 Slides)
-Exactly these sections:
-1. Welcome
-2. Problem
-3. Solution
-4. Working
-5. Tech Stack
-6. Results/Demo
-7. Thank You
-
-Prepared content file:
-- `docs/PPT_7_SLIDES_CONTENT.md`
-
-### 3) Word Document
-Must include:
-- project description
-- software packages used
-- assumptions
-- implementation details
-
-Prepared content file:
-- `docs/STAGE1_WORD_DOCUMENT_CONTENT.md`
-
-## Evaluation Focus
-
-- meaningful AI usage
-- real-world impact
-- innovation
-- working demo quality
-- clear explanation during presentation
-
-## Deployment
-
-Static frontend app. No backend required.
-
-- Vercel: build command `npm run build`, output `dist`
-- Netlify: build command `npm run build`, publish `dist`
-
-## Demo Flow (Recommended)
-
-1. Enter source and destination
-2. Analyze route risk
-3. Show red/yellow/green route segments
-4. Enable rain/night/heavy traffic toggles
-5. Compare with safer route and switch
-6. Show voice warning and predictive alert
-7. Trigger SOS panel and emergency links
-8. Export trip safety report
+- This submission is intended to include the active app source plus this README.
+- Unused starter panels and placeholder SVGs were removed to keep review simple.
+- Docs-folder submission materials have been removed because you only want to submit the README.
 
 ---
 Built for prevention-first road safety impact.

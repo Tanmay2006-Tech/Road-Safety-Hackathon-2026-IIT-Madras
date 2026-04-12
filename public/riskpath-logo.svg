@@ -1,12 +1,29 @@
 <svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="riskpathGrad" x1="20" y1="14" x2="108" y2="114" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#34D399"/>
-      <stop offset="1" stop-color="#22D3EE"/>
+    <linearGradient id="shieldGrad" x1="24" y1="18" x2="104" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F2D57"/>
+      <stop offset="1" stop-color="#245CC9"/>
+    </linearGradient>
+    <linearGradient id="rGrad" x1="44" y1="34" x2="78" y2="92" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FBFF"/>
+      <stop offset="1" stop-color="#DCEBFF"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="86" y1="20" x2="106" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD34D"/>
+      <stop offset="1" stop-color="#F4A300"/>
     </linearGradient>
   </defs>
-  <rect x="6" y="6" width="116" height="116" rx="28" fill="#050A12" stroke="#1F2937" stroke-width="4"/>
-  <path d="M64 18L99 33V61C99 83 85 101 64 110C43 101 29 83 29 61V33L64 18Z" fill="url(#riskpathGrad)" fill-opacity="0.22" stroke="url(#riskpathGrad)" stroke-width="3"/>
-  <path d="M43 82V45H60C67 45 71 49 71 56C71 63 67 67 60 67H52V82H43ZM52 59H58C61 59 62 58 62 56C62 53 60 53 58 53H52V59Z" fill="#ECFEFF"/>
-  <path d="M78 82V45H88C98 45 105 52 105 63C105 74 98 82 88 82H78ZM87 74H88C93 74 96 70 96 63C96 56 93 53 88 53H87V74Z" fill="#D1FAE5"/>
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="#F7FAFF"/>
+  <path
+    d="M64 18L96 30V57C96 79 82.5 98 64 108C45.5 98 32 79 32 57V30L64 18Z"
+    fill="url(#shieldGrad)"
+    stroke="#173A72"
+    stroke-width="3.5"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M51 44H64.5C71.8 44 76.8 48.2 76.8 54.8C76.8 59.9 73.8 63.4 69.1 65L76.4 81H67.7L61.1 66.8H56.8V81H51V44ZM56.8 61.5H63.9C67.5 61.5 70 59.9 70 56C70 52.1 67.5 50.5 63.9 50.5H56.8V61.5Z"
+    fill="url(#rGrad)"
+  />
+  <circle cx="86.5" cy="31.5" r="5.5" fill="url(#accentGrad)"/>
 </svg>

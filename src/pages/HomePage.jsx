@@ -27,54 +27,54 @@ import {
 
 const MapPanel = lazy(() => import('../components/MapPanel'))
 
-const JUDGE_DEMO_STEPS = [
+const DEMO_STEPS = [
   {
     section: 'overview',
-    label: 'Problem Snapshot',
-    note: 'Start with live risk and emergency readiness view.',
+    label: 'Why this matters',
+    note: 'Show the main problem in one clear view.',
     seconds: 12,
-    objective: 'Show the problem and value in the first 10 seconds.',
-    judgeLearn: 'RiskPath predicts danger before a user starts driving.',
+    objective: 'Explain what problem the app solves.',
+    takeaway: 'RiskPath helps people understand road risk before they leave.',
   },
   {
     section: 'route',
-    label: 'Route Intelligence',
-    note: 'Show route input and one-click safety analysis.',
+    label: 'Check a route',
+    note: 'Enter start and destination and run analysis.',
     seconds: 14,
-    objective: 'Enter route and trigger analysis with one action.',
-    judgeLearn: 'The product converts simple input into risk-ready route decisions.',
+    objective: 'Show how a route is checked in one step.',
+    takeaway: 'The app turns two place names into a safer route decision.',
   },
   {
     section: 'map',
-    label: 'Live Map and Services',
-    note: 'Show hazards, safer route, and nearby emergency points.',
+    label: 'See the map',
+    note: 'Show the route, hazards, and nearby help.',
     seconds: 16,
-    objective: 'Highlight visual proof: risk segments plus emergency service layer.',
-    judgeLearn: 'Users can switch from awareness to action without changing apps.',
+    objective: 'Show the route and nearby emergency support clearly.',
+    takeaway: 'Everything needed is visible in one map screen.',
   },
   {
     section: 'insights',
-    label: 'Actionable Insights',
-    note: 'Explain risk reason breakdown and downloadable summaries.',
+    label: 'Understand the result',
+    note: 'Explain why the route is risky and what to do next.',
     seconds: 12,
-    objective: 'Show that outputs are explainable and shareable.',
-    judgeLearn: 'The model output is understandable, auditable, and useful to teams.',
+    objective: 'Show why the app gave this result.',
+    takeaway: 'The result is easy to explain and share.',
   },
   {
     section: 'emergency',
-    label: 'Emergency Execution',
-    note: 'Demonstrate SOS, profile details, and contact actions.',
+    label: 'Act fast in an emergency',
+    note: 'Show SOS, contact details, and quick actions.',
     seconds: 14,
-    objective: 'Finish with response speed and readiness capability.',
-    judgeLearn: 'RiskPath supports prevention and response in one workflow.',
+    objective: 'Show how the app helps in urgent situations.',
+    takeaway: 'The app supports both prevention and quick response.',
   },
 ]
 
 const PRESENTATION_SCRIPT = [
-  'RiskPath predicts route risk before travel starts.',
-  'Map view overlays risk segments and nearby emergency facilities.',
-  'Emergency mode provides SOS, trusted contacts, and one-tap responders.',
-  'Crash detection and emergency profile improve response readiness.',
+  'RiskPath shows road risk before a trip starts.',
+  'The map shows danger spots and nearby emergency help.',
+  'Emergency tools help you call, share, and act fast.',
+  'Crash detection and emergency details improve response readiness.',
 ]
 
 export default function HomePage() {
@@ -99,8 +99,7 @@ export default function HomePage() {
   const [contacts, setContacts] = useState([])
   const [liveMonitorOn, setLiveMonitorOn] = useState(false)
   const [monitorPing, setMonitorPing] = useState(120)
-  const [isOnline, setIsOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine))
-  const [compactMode, setCompactMode] = useState(() => {
+  const [compactMode] = useState(() => {
     try {
       return localStorage.getItem('riskpath_compact_ui') === '1'
     } catch {
@@ -108,7 +107,8 @@ export default function HomePage() {
     }
   })
   const [toast, setToast] = useState('')
-  const [judgeDemo, setJudgeDemo] = useState({ running: false, paused: false, index: 0, remaining: 0 })
+  const [demoState, setDemoState] = useState({ running: false, paused: false, index: 0, remaining: 0 })
+  const [showDemoDetails, setShowDemoDetails] = useState(false)
   const [presentationMode, setPresentationMode] = useState(false)
   const [offlineKitMeta, setOfflineKitMeta] = useState(null)
   const [guardianShareExpiresAt, setGuardianShareExpiresAt] = useState(0)
@@ -220,24 +220,6 @@ export default function HomePage() {
   }, [compactMode])
 
   useEffect(() => {
-    function handleOnline() {
-      setIsOnline(true)
-    }
-
-    function handleOffline() {
-      setIsOnline(false)
-    }
-
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
-
-  useEffect(() => {
     if (!toast) return
 
     const timeout = setTimeout(() => {
@@ -270,15 +252,15 @@ export default function HomePage() {
   }, [routeData, hotspots, facilities, emergencyProfile])
 
   useEffect(() => {
-    if (!judgeDemo.running || judgeDemo.paused) return
+    if (!demoState.running || demoState.paused) return
 
-    const activeStep = JUDGE_DEMO_STEPS[judgeDemo.index]
+    const activeStep = DEMO_STEPS[demoState.index]
     if (!activeStep) return
 
     setActiveSection(activeStep.section)
 
     const timer = setTimeout(() => {
-      setJudgeDemo((prev) => {
+      setDemoState((prev) => {
         if (!prev.running) return prev
 
         if (prev.remaining > 1) {
@@ -286,8 +268,8 @@ export default function HomePage() {
         }
 
         const nextIndex = prev.index + 1
-        if (nextIndex >= JUDGE_DEMO_STEPS.length) {
-          showToast('Judge demo completed.')
+        if (nextIndex >= DEMO_STEPS.length) {
+          showToast('Demo completed.')
           return { running: false, paused: false, index: 0, remaining: 0 }
         }
 
@@ -295,13 +277,13 @@ export default function HomePage() {
           running: true,
           paused: false,
           index: nextIndex,
-          remaining: JUDGE_DEMO_STEPS[nextIndex].seconds,
+          remaining: DEMO_STEPS[nextIndex].seconds,
         }
       })
     }, 1000)
 
     return () => clearTimeout(timer)
-  }, [judgeDemo])
+  }, [demoState])
 
   const riskBundle = useMemo(() => {
     if (!routeData?.current) return null
@@ -534,11 +516,6 @@ export default function HomePage() {
     showToast('Emergency profile removed from this device.')
   }
 
-  function handleCompactToggle() {
-    setCompactMode((prev) => !prev)
-    showToast(compactMode ? 'Normal mode enabled.' : 'Compact mode enabled.')
-  }
-
   function handleCopiedEmergencyMessage(success) {
     if (success) {
       showToast('Emergency message copied.')
@@ -697,30 +674,18 @@ export default function HomePage() {
   ]
 
   const showMapOnScreen = activeSection === 'overview' || activeSection === 'map'
-  const judgeDemoTotalSeconds = JUDGE_DEMO_STEPS.reduce((sum, step) => sum + step.seconds, 0)
-  const judgeDemoActiveStep = JUDGE_DEMO_STEPS[judgeDemo.index]
-  const judgeDemoElapsed = useMemo(() => {
-    const elapsedBeforeCurrent = JUDGE_DEMO_STEPS.slice(0, judgeDemo.index).reduce((sum, step) => sum + step.seconds, 0)
-    const currentStepTotal = JUDGE_DEMO_STEPS[judgeDemo.index]?.seconds || 0
-    const elapsedCurrent = Math.max(0, currentStepTotal - judgeDemo.remaining)
+  const demoTotalSeconds = DEMO_STEPS.reduce((sum, step) => sum + step.seconds, 0)
+  const demoActiveStep = DEMO_STEPS[demoState.index]
+  const demoElapsed = useMemo(() => {
+    const elapsedBeforeCurrent = DEMO_STEPS.slice(0, demoState.index).reduce((sum, step) => sum + step.seconds, 0)
+    const currentStepTotal = DEMO_STEPS[demoState.index]?.seconds || 0
+    const elapsedCurrent = Math.max(0, currentStepTotal - demoState.remaining)
     return elapsedBeforeCurrent + elapsedCurrent
-  }, [judgeDemo.index, judgeDemo.remaining])
-  const judgeDemoProgress = Math.min(100, Math.max(0, Math.round((judgeDemoElapsed / judgeDemoTotalSeconds) * 100)))
-  const impactStats = useMemo(() => {
-    const riskReduction = Math.max(
-      0,
-      (riskBundle?.currentEval?.riskPercent || 0) - (riskBundle?.alternativeEval?.riskPercent || 0),
-    )
+  }, [demoState.index, demoState.remaining])
+  const demoProgress = Math.min(100, Math.max(0, Math.round((demoElapsed / demoTotalSeconds) * 100)))
 
-    return {
-      riskReduction,
-      emergencyCoverage: visibleFacilities.length,
-      profileReady: Boolean(emergencyProfile?.fullName && emergencyProfile?.phone),
-    }
-  }, [riskBundle, visibleFacilities.length, emergencyProfile])
-
-  async function startJudgeDemo() {
-    if (judgeDemo.running) return
+  async function startDemo() {
+    if (demoState.running) return
 
     const demoFrom = start || 'IIT Madras, Chennai'
     const demoTo = destination || 'Chennai Central, Chennai'
@@ -734,43 +699,45 @@ export default function HomePage() {
       // Keep demo running even if route service is temporarily unavailable.
     }
 
-    setJudgeDemo({ running: true, paused: false, index: 0, remaining: JUDGE_DEMO_STEPS[0].seconds })
-    showToast('Judge demo started.')
+    setDemoState({ running: true, paused: false, index: 0, remaining: DEMO_STEPS[0].seconds })
+    setShowDemoDetails(false)
+    showToast('Demo started.')
   }
 
-  function stopJudgeDemo() {
-    setJudgeDemo({ running: false, paused: false, index: 0, remaining: 0 })
+  function stopDemo() {
+    setDemoState({ running: false, paused: false, index: 0, remaining: 0 })
+    setShowDemoDetails(false)
     setActiveSection('overview')
-    showToast('Judge demo stopped.')
+    showToast('Demo stopped.')
   }
 
-  function toggleJudgeDemoPause() {
-    if (!judgeDemo.running) return
-    setJudgeDemo((prev) => ({ ...prev, paused: !prev.paused }))
-    showToast(judgeDemo.paused ? 'Judge demo resumed.' : 'Judge demo paused.')
+  function toggleDemoPause() {
+    if (!demoState.running) return
+    setDemoState((prev) => ({ ...prev, paused: !prev.paused }))
+    showToast(demoState.paused ? 'Demo resumed.' : 'Demo paused.')
   }
 
-  function goToJudgeDemoStep(stepIndex) {
-    if (!judgeDemo.running) return
-    if (stepIndex < 0 || stepIndex >= JUDGE_DEMO_STEPS.length) return
+  function goToDemoStep(stepIndex) {
+    if (!demoState.running) return
+    if (stepIndex < 0 || stepIndex >= DEMO_STEPS.length) return
 
-    setJudgeDemo((prev) => ({
+    setDemoState((prev) => ({
       ...prev,
       index: stepIndex,
-      remaining: JUDGE_DEMO_STEPS[stepIndex].seconds,
+      remaining: DEMO_STEPS[stepIndex].seconds,
     }))
   }
 
-  function goToNextJudgeDemoStep() {
-    if (!judgeDemo.running) return
-    const next = Math.min(JUDGE_DEMO_STEPS.length - 1, judgeDemo.index + 1)
-    goToJudgeDemoStep(next)
+  function goToNextDemoStep() {
+    if (!demoState.running) return
+    const next = Math.min(DEMO_STEPS.length - 1, demoState.index + 1)
+    goToDemoStep(next)
   }
 
-  function goToPreviousJudgeDemoStep() {
-    if (!judgeDemo.running) return
-    const previous = Math.max(0, judgeDemo.index - 1)
-    goToJudgeDemoStep(previous)
+  function goToPreviousDemoStep() {
+    if (!demoState.running) return
+    const previous = Math.max(0, demoState.index - 1)
+    goToDemoStep(previous)
   }
 
   function exportJsonReport() {
@@ -864,8 +831,6 @@ export default function HomePage() {
 
   return (
     <div className={`rp-shell min-h-screen text-slate-100 ${compactMode ? 'rp-compact' : ''}`}>
-      <div className="rp-ambient-orb one" />
-      <div className="rp-ambient-orb two" />
       <Navbar />
       <main className="rp-main mobile-safe pb-8">
         <div className="grid gap-4 xl:grid-cols-[220px_minmax(0,1fr)] xl:items-start">
@@ -893,81 +858,67 @@ export default function HomePage() {
           </aside>
 
           <section className="space-y-4">
-            <div className="rp-card rp-control-bar rp-float-in flex flex-wrap items-center justify-between gap-2 rounded-2xl px-3 py-2 text-xs">
-              <span className={`rp-pill rounded-full border px-2 py-1 font-semibold ${isOnline ? 'border-emerald-300/50 bg-emerald-400/10 text-emerald-200' : 'border-amber-300/50 bg-amber-400/10 text-amber-200'}`}>
-                {isOnline ? 'Online' : 'Offline mode'}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={togglePresentationMode}
-                  className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${
-                    presentationMode
-                      ? 'border-amber-300/55 bg-amber-300/15 text-amber-100'
-                      : 'border-cyan-300/50 bg-cyan-300/10 text-cyan-100'
-                  }`}
-                >
-                  {presentationMode ? 'Stop presentation' : 'Presentation mode'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCompactToggle}
-                  className="rounded-lg border border-slate-600 px-2.5 py-1 text-xs font-semibold text-slate-200"
-                >
-                  {compactMode ? 'Normal view' : 'Compact view'}
-                </button>
-              </div>
-            </div>
 
-            {judgeDemo.running && judgeDemoActiveStep && (
-              <div className="rp-card sticky top-[88px] z-[1000] rounded-2xl border border-cyan-300/45 bg-[#061228]/95 p-3 text-xs text-cyan-100 shadow-2xl shadow-cyan-950/40">
+            {demoState.running && demoActiveStep && (
+              <div className="rp-card sticky top-[88px] z-[1000] rounded-2xl border border-cyan-300/35 bg-[#061228]/95 p-3 text-xs text-cyan-100 shadow-lg shadow-cyan-950/25">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="font-semibold uppercase tracking-[0.18em]">Judge Demo Running</p>
-                  <p className="text-[11px] text-cyan-200">Step {judgeDemo.index + 1}/{JUDGE_DEMO_STEPS.length} • {judgeDemo.paused ? 'Paused' : `Next in ${judgeDemo.remaining}s`}</p>
+                  <div>
+                    <p className="font-semibold uppercase tracking-[0.18em]">Demo</p>
+                    <p className="text-[11px] text-cyan-200">Step {demoState.index + 1}/{DEMO_STEPS.length} • {demoState.paused ? 'Paused' : 'Live walkthrough'}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowDemoDetails((prev) => !prev)}
+                    className="rounded-full border border-slate-500 px-2.5 py-1 text-[11px] font-semibold text-slate-200"
+                  >
+                    {showDemoDetails ? 'Hide details' : 'Show details'}
+                  </button>
                 </div>
 
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-800/80">
-                  <div className="h-full rounded-full bg-cyan-300/85 transition-all" style={{ width: `${judgeDemoProgress}%` }} />
+                  <div className="h-full rounded-full bg-cyan-300/85 transition-all" style={{ width: `${demoProgress}%` }} />
                 </div>
 
-                <div className="mt-3 grid gap-3 md:grid-cols-2">
-                  <div className="rounded-xl border border-cyan-300/30 bg-cyan-300/10 p-2.5">
-                    <p className="text-[11px] uppercase tracking-[0.15em] text-cyan-200">Current segment</p>
-                    <p className="mt-1 text-sm font-semibold text-white">{judgeDemoActiveStep.label}</p>
-                    <p className="mt-1 text-slate-300">{judgeDemoActiveStep.note}</p>
+                {showDemoDetails && (
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <div className="rounded-xl border border-cyan-300/30 bg-cyan-300/10 p-2.5">
+                      <p className="text-[11px] uppercase tracking-[0.15em] text-cyan-200">Current segment</p>
+                      <p className="mt-1 text-sm font-semibold text-white">{demoActiveStep.label}</p>
+                      <p className="mt-1 text-slate-300">{demoActiveStep.note}</p>
+                    </div>
+                    <div className="rounded-xl border border-cyan-300/25 bg-[#0b1b34]/70 p-2.5">
+                      <p className="text-[11px] uppercase tracking-[0.15em] text-cyan-200">What this shows</p>
+                      <p className="mt-1 text-slate-200">{demoActiveStep.takeaway}</p>
+                      <p className="mt-1 text-[11px] text-cyan-100">Show now: {demoActiveStep.objective}</p>
+                    </div>
                   </div>
-                  <div className="rounded-xl border border-cyan-300/25 bg-[#0b1b34]/70 p-2.5">
-                    <p className="text-[11px] uppercase tracking-[0.15em] text-cyan-200">What judges should learn</p>
-                    <p className="mt-1 text-slate-200">{judgeDemoActiveStep.judgeLearn}</p>
-                    <p className="mt-1 text-[11px] text-cyan-100">Show now: {judgeDemoActiveStep.objective}</p>
-                  </div>
-                </div>
+                )}
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={goToPreviousJudgeDemoStep}
+                    onClick={goToPreviousDemoStep}
                     className="rounded-lg border border-slate-500 px-2.5 py-1 text-[11px] font-semibold text-slate-200"
                   >
                     Previous
                   </button>
                   <button
                     type="button"
-                    onClick={toggleJudgeDemoPause}
+                    onClick={toggleDemoPause}
                     className="rounded-lg border border-cyan-300/45 bg-cyan-300/15 px-2.5 py-1 text-[11px] font-semibold text-cyan-100"
                   >
-                    {judgeDemo.paused ? 'Resume' : 'Pause'}
+                    {demoState.paused ? 'Resume' : 'Pause'}
                   </button>
                   <button
                     type="button"
-                    onClick={goToNextJudgeDemoStep}
+                    onClick={goToNextDemoStep}
                     className="rounded-lg border border-slate-500 px-2.5 py-1 text-[11px] font-semibold text-slate-200"
                   >
                     Next
                   </button>
                   <button
                     type="button"
-                    onClick={stopJudgeDemo}
+                    onClick={stopDemo}
                     className="rounded-lg border border-rose-300/45 bg-rose-500/15 px-2.5 py-1 text-[11px] font-semibold text-rose-100"
                   >
                     Stop
@@ -998,10 +949,10 @@ export default function HomePage() {
             {activeSection === 'overview' && (
             <section id="home-overview" className="space-y-4">
               <div className="rp-card rp-hero-card rp-tilt-card rp-float-in rounded-2xl p-5 sm:p-6">
-                <p className="text-[11px] uppercase tracking-[0.24em] text-cyan-200">Home Dashboard</p>
+                <p className="text-[11px] uppercase tracking-[0.24em] text-cyan-200">Road safety for everyone</p>
                 <h1 className="mt-2 font-display text-3xl text-white sm:text-4xl">Know the risk before the road.</h1>
                 <p className="mt-2 max-w-2xl text-sm text-slate-300">
-                  Know the risk before the road.
+                  A clean route-safety demo that shows risk, nearby help, and emergency action in one screen.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
@@ -1010,39 +961,21 @@ export default function HomePage() {
                   >
                     Open SOS now
                   </button>
-                  {judgeDemo.running ? (
+                  {demoState.running ? (
                     <button
-                      onClick={stopJudgeDemo}
+                      onClick={stopDemo}
                       className="rounded-xl border border-amber-300/50 bg-amber-300/15 px-4 py-2 text-sm font-semibold text-amber-100"
                     >
                       Stop demo
                     </button>
                   ) : (
                     <button
-                      onClick={startJudgeDemo}
+                      onClick={startDemo}
                       className="rounded-xl border border-cyan-300/55 bg-cyan-300/15 px-4 py-2 text-sm font-semibold text-cyan-100"
                     >
-                      Start {judgeDemoTotalSeconds}s judge demo
+                      Start {demoTotalSeconds}s demo
                     </button>
                   )}
-                </div>
-              </div>
-
-              <div className="rp-card rp-tilt-card rounded-2xl border-cyan-300/35 bg-cyan-300/10 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-cyan-100">Impact Snapshot</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                  <div>
-                    <p className="text-2xl font-semibold text-white">{impactStats.riskReduction}%</p>
-                    <p className="text-xs text-slate-300">Potential risk reduction with safer route</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-semibold text-white">{impactStats.emergencyCoverage}</p>
-                    <p className="text-xs text-slate-300">Nearby emergency points available now</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-semibold text-white">{impactStats.profileReady ? 'Ready' : 'Pending'}</p>
-                    <p className="text-xs text-slate-300">Emergency profile response readiness</p>
-                  </div>
                 </div>
               </div>
 
@@ -1100,6 +1033,10 @@ export default function HomePage() {
                   onUseCurrentLocation={useCurrentLocationAsStart}
                   hasCurrentLocation={Number.isFinite(location?.lat) && Number.isFinite(location?.lng)}
                   loading={loading}
+                  statusMessage={message}
+                  result={riskBundle?.currentEval || null}
+                  onViewMap={() => setActiveSection('map')}
+                  onOpenInsights={() => setActiveSection('insights')}
                 />
               </div>
 
@@ -1115,6 +1052,7 @@ export default function HomePage() {
                   {liveMonitorOn ? `Live monitor on (${monitorPing}s)` : 'Start live risk recheck'}
                 </button>
               </div>
+
             </section>
             )}
 
@@ -1354,7 +1292,7 @@ export default function HomePage() {
       )}
 
       {presentationMode && (
-        <div className="fixed bottom-4 left-4 z-[2250] w-[min(92vw,360px)] rounded-xl border border-amber-300/45 bg-[#171208]/95 p-3 text-xs text-amber-100 shadow-2xl shadow-amber-950/40">
+        <div className="fixed bottom-4 left-4 z-[2250] w-[min(92vw,320px)] rounded-xl border border-amber-300/45 bg-[#171208]/95 p-3 text-xs text-amber-100 shadow-xl shadow-amber-950/30">
           <p className="font-semibold uppercase tracking-[0.18em]">Presentation Mode Active</p>
           <p className="mt-1 text-slate-200">Focused demo layout enabled.</p>
           <button

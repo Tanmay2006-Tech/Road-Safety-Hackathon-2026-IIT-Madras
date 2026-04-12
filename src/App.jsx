@@ -8,6 +8,18 @@ function App() {
   const [isOffline, setIsOffline] = useState(!navigator.onLine)
 
   useEffect(() => {
+    if (import.meta.env.DEV) {
+      // Avoid stale cached bundles while iterating in local dev.
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          registrations.forEach((registration) => registration.unregister())
+        }).catch(() => {
+          // Ignore SW cleanup failures in restricted environments.
+        })
+      }
+      return
+    }
+
     registerServiceWorker((message) => {
       setStatusMessage(message)
       setTimeout(() => setStatusMessage(''), 6000)
