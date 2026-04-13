@@ -6,6 +6,8 @@
 
 RiskPath is a prevention-first road safety platform that predicts route risk before travel, highlights dangerous segments on a live map, suggests safer alternatives, and exposes emergency support when it matters.
 
+Live Demo : https://road-safety-hackathon-2026-iit-madr.vercel.app
+
 ## Hackathon Pitch
 
 Road safety tools are usually reactive. RiskPath is designed to be the opposite: it helps a user understand risk before starting the trip, shows why that route is risky, and gives immediate actions for emergency response.
