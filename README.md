@@ -167,5 +167,5 @@ README.md
 - Unused starter panels and placeholder SVGs were removed to keep review simple.
 - Docs-folder submission materials have been removed because you only want to submit the README.
 
----
+
 Built for prevention-first road safety impact.
